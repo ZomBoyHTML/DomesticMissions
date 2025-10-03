@@ -146,25 +146,25 @@
         }
 
        let countdownTimer;
-const countdownEl = document.getElementById('countdown');
+       const countdownEl = document.getElementById('countdown');
 
 
-function startCountdown(){
-function update(){
-const remaining = endOfChileDay() - nowInChile();
-countdownEl.textContent = msToHMS(remaining);
-}
-update();
-countdownTimer = setInterval(update, 1000);
-}
+        function startCountdown(){
+            function update(){
+                const remaining = endOfChileDay() - nowInChile();
+                countdownEl.textContent = msToHMS(remaining);
+            }
+            update();
+            countdownTimer = setInterval(update, 1000);
+        }
 
 
-function stopCountdown(){
-if(countdownTimer){
-clearInterval(countdownTimer);
-countdownTimer = null;
-}
-}
+        function stopCountdown(){
+            if(countdownTimer){
+            clearInterval(countdownTimer);
+            countdownTimer = null;
+            }
+        }
         
         
         function pinKey(pin) { return String(pin || '').padStart(4, '0').slice(-4); }
@@ -290,3 +290,4 @@ countdownTimer = null;
 
 
 </html>
+
