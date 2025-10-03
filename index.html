@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DomesticMissions</title>
+   <style>
+    html, body {
+      margin:0;
+      padding:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+    }
+    body{
+      background:#000;
+      color:#00ff00;
+      font-family: "Courier New", monospace;
+      display:flex;
+      flex-direction:column;
+      justify-content:center; 
+      align-items:center;
+    }
+    .app{
+      width:100%;
+      max-width:500px;
+      text-align:center;
+    }
+    h1,h2,label,p{color:#00ff00;}
+    input, textarea, select{
+      width:100%;
+      padding:8px 10px;
+      margin:6px 0;
+      border:1px solid #00ff00;
+      border-radius:4px;
+      background:black;
+      color:#00ff00;
+      font-family:"Courier New", monospace;
+    }
+    button{
+      background:black;
+      color:#00ff00;
+      border:1px solid #00ff00;
+      padding:8px 14px;
+      margin:4px;
+      cursor:pointer;
+      font-family:"Courier New", monospace;
+    }
+    button:hover{
+      background:#003300;
+    }
+    .mission{
+      border:1px solid #00ff00;
+      padding:8px;
+      margin:8px 0;
+      text-align:left;
+    }
+    .status{
+      font-weight:bold;
+      display:inline-block;
+      margin-top:6px;
+    }
+    .status.pending{color:#00ff00;}
+    .status.active{color:#00ffaa;}
+    .status.failed{color:#777;}
+    .status.done{color:#00aaff;}
+    .count{font-size:24px;font-weight:bold;margin:10px 0;}
+    .small{font-size:12px;color:#00ff00;}
+    .footer {
+      width:100%;
+      text-align:center;
+      font-size: 0.8rem;
+      color: gray;
+      padding: 10px 0;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+    <div class="app">
+        <h1>Domestic Missions</h1>
+        <div id="authArea">
+            <label>Nombre de usuario</label>
+            <input id="username" type="text" placeholder="ej: juanito" maxlength="32" />
+            <label>PIN (4 dígitos)</label>
+            <input id="pin" type="number" placeholder="1234" min="0" max="9999" />
+            <div>
+                <button id="loginBtn">Entrar / Crear</button>
+                <button id="logoutBtn" style="display:none">Cerrar</button>
+            </div>
+            <p class="small">Los datos se guardan en tu navegador (localStorage).</p>
+        </div>
+
+        <div id="addMissionArea" style="display:none;margin-top:20px">
+            <label>Título</label>
+            <input id="mTitle" type="text" placeholder="Ordenar la pieza" />
+            <label>Descripción</label>
+            <textarea id="mDesc" rows="3" placeholder="Qué te pidieron..."></textarea>
+            <div>
+                <button id="addMissionBtn">Añadir misión</button>
+                <button id="clearBtn">Limpiar</button>
+            </div>
+        </div>
+
+        <h2 style="margin-top:20px">Misiones guardadas</h2>
+        <div id="missionsList"></div>
+
+        <h2>Control de misión</h2>
+        <div id="noSelection">
+            <p class="small">Selecciona una misión para verla aquí.</p>
+        </div>
+        <div id="missionDetail" style="display:none">
+            <h2 id="detailTitle"></h2>
+            <p id="detailDesc" class="small"></p>
+            <div class="count" id="countdown">--:--:--</div>
+            <div>
+                <button id="startBtn">Iniciar</button>
+                <button id="completeBtn" style="display:none">Completar</button>
+            </div>
+            <div class="status pending" id="detailStatus">Pendiente</div>
+        </div>
+    </div>
+    <div class="footer">&copy; ZomBoyHTML</div>
+
+
+    <script>
+        function nowInChile() {
+            const s = new Date().toLocaleString('en-US', { timeZone: 'America/Santiago' });
+            return new Date(s);
+        }
+        function endOfChileDay() {
+            const d = nowInChile();
+            const e = new Date(d);
+            e.setHours(23, 59, 59, 999);
+            return e;
+        }
+        function msToHMS(ms) {
+            if (ms <= 0) return '00:00:00';
+            const sec = Math.floor(ms / 1000);
+            const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+            const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+            const s = String(sec % 60).padStart(2, '0');
+            return `${h}:${m}:${s}`;
+        }
+        function pinKey(pin) { return String(pin || '').padStart(4, '0').slice(-4); }
+        function storageKeyFor(user, pin) { return `sg_user_${user}___${pinKey(pin)}`; }
+        function loadMissions(u, p) { try { return JSON.parse(localStorage.getItem(storageKeyFor(u, p))) || [] } catch { return [] } }
+        function saveMissions(u, p, m) { localStorage.setItem(storageKeyFor(u, p), JSON.stringify(m)); }
+
+        let currentUser = null, currentPin = null, missions = [], selectedId = null, countdownTimer = null;
+
+        const usernameEl = document.getElementById('username');
+        const pinEl = document.getElementById('pin');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const addMissionArea = document.getElementById('addMissionArea');
+        const addMissionBtn = document.getElementById('addMissionBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const mTitle = document.getElementById('mTitle');
+        const mDesc = document.getElementById('mDesc');
+        const missionsList = document.getElementById('missionsList');
+        const missionDetail = document.getElementById('missionDetail');
+        const noSelection = document.getElementById('noSelection');
+        const detailTitle = document.getElementById('detailTitle');
+        const detailDesc = document.getElementById('detailDesc');
+        const detailStatus = document.getElementById('detailStatus');
+        const startBtn = document.getElementById('startBtn');
+        const completeBtn = document.getElementById('completeBtn');
+        const countdownEl = document.getElementById('countdown');
+
+        loginBtn.addEventListener('click', () => {
+            const u = (usernameEl.value || '').trim();
+            const p = String(pinEl.value || '').replace(/\D/g, '');
+            if (!u || !p) { alert('Escribe usuario y PIN'); return; }
+            currentUser = u; currentPin = pinKey(p);
+            missions = loadMissions(currentUser, currentPin);
+            document.getElementById('authArea').style.display = 'none';
+            logoutBtn.style.display = 'inline-block';
+            addMissionArea.style.display = 'block';
+            renderMissionsList();
+        });
+
+        logoutBtn.addEventListener('click', () => { location.reload(); });
+
+        addMissionBtn.addEventListener('click', () => {
+            const t = (mTitle.value || '').trim();
+            if (!t) { alert('Pon un título'); return; }
+            const d = (mDesc.value || '').trim();
+            const id = 'm_' + Date.now();
+            missions.unshift({ id, title: t, desc: d, status: 'pending' });
+            saveMissions(currentUser, currentPin, missions);
+            renderMissionsList();
+            mTitle.value = ''; mDesc.value = '';
+        });
+
+        clearBtn.addEventListener('click', () => { mTitle.value = ''; mDesc.value = ''; });
+
+        function renderMissionsList() {
+            missionsList.innerHTML = '';
+            if (missions.length === 0) { missionsList.innerHTML = '<p class="small">No hay misiones.</p>'; return; }
+            missions.forEach(m => {
+                const div = document.createElement('div'); div.className = 'mission';
+                div.innerHTML = `<div><b>${m.title}</b><br><span class='small'>${m.desc || ''}</span></div>`;
+                const st = document.createElement('div'); st.className = 'status ' + m.status; st.textContent = statusText(m.status);
+                div.appendChild(st);
+                const btn = document.createElement('button'); btn.textContent = 'Ver'; btn.onclick = () => selectMission(m.id);
+                div.appendChild(btn);
+                missionsList.appendChild(div);
+            });
+        }
+
+        function statusText(s) { if (s === 'pending') return 'Pendiente'; if (s === 'active') return 'Activa'; if (s === 'failed') return 'Fallida'; if (s === 'done') return 'Completada'; return s; }
+
+        function selectMission(id) {
+            selectedId = id;
+            const m = missions.find(x => x.id === id);
+            if (!m) return;
+            noSelection.style.display = 'none';
+            missionDetail.style.display = 'block';
+            detailTitle.textContent = m.title;
+            detailDesc.textContent = m.desc || '';
+            detailStatus.className = 'status ' + m.status;
+            detailStatus.textContent = statusText(m.status);
+
+            if (m.status === 'active') {
+                startBtn.style.display = 'none'; completeBtn.style.display = 'inline-block';
+                startCountdownFor(m);
+            } else if (m.status === 'pending') {
+                startBtn.style.display = 'inline-block'; completeBtn.style.display = 'none';
+                stopCountdown(); countdownEl.textContent = msToHMS(endOfChileDay() - nowInChile());
+            } else {
+                startBtn.style.display = 'none'; completeBtn.style.display = 'none';
+                stopCountdown(); countdownEl.textContent = '00:00:00';
+            }
+        }
+
+        startBtn.addEventListener('click', () => {
+            const m = missions.find(x => x.id === selectedId); if (!m) return;
+            m.status = 'active'; m.startedAt = Date.now();
+            saveMissions(currentUser, currentPin, missions);
+            selectMission(selectedId);
+        });
+
+        completeBtn.addEventListener('click', () => {
+            const m = missions.find(x => x.id === selectedId); if (!m) return;
+            m.status = 'done'; m.completedAt = Date.now();
+            saveMissions(currentUser, currentPin, missions);
+            stopCountdown(); renderMissionsList(); selectMission(selectedId);
+        });
+
+        function startCountdownFor(m) {
+            stopCountdown();
+            function tick() {
+                const now = nowInChile();
+                const end = endOfChileDay();
+                const rem = end - now;
+                countdownEl.textContent = msToHMS(rem);
+                if (rem <= 0) { m.status = 'failed'; m.failedAt = Date.now(); saveMissions(currentUser, currentPin, missions); stopCountdown(); renderMissionsList(); selectMission(m.id); }
+            }
+            tick(); countdownTimer = setInterval(tick, 1000);
+        }
+        function stopCountdown() { if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; } }
+    </script>
+</body>
+
+</html>
