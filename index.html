@@ -144,6 +144,29 @@
             const s = String(sec % 60).padStart(2, '0');
             return `${h}:${m}:${s}`;
         }
+
+       let countdownTimer;
+const countdownEl = document.getElementById('countdown');
+
+
+function startCountdown(){
+function update(){
+const remaining = endOfChileDay() - nowInChile();
+countdownEl.textContent = msToHMS(remaining);
+}
+update();
+countdownTimer = setInterval(update, 1000);
+}
+
+
+function stopCountdown(){
+if(countdownTimer){
+clearInterval(countdownTimer);
+countdownTimer = null;
+}
+}
+        
+        
         function pinKey(pin) { return String(pin || '').padStart(4, '0').slice(-4); }
         function storageKeyFor(user, pin) { return `sg_user_${user}___${pinKey(pin)}`; }
         function loadMissions(u, p) { try { return JSON.parse(localStorage.getItem(storageKeyFor(u, p))) || [] } catch { return [] } }
@@ -264,5 +287,6 @@
         function stopCountdown() { if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; } }
     </script>
 </body>
+
 
 </html>
