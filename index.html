@@ -289,6 +289,39 @@
             mTitle.value = ''; mDesc.value = '';
         });
 
+        // Cuando estoy en el campo usuario y presiono Enter → pasa al PIN
+        usernameEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                pinEl.focus();
+            }
+        });
+
+        // Cuando estoy en el campo PIN y presiono Enter → hace login
+        pinEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                loginBtn.click();
+            }
+        });
+
+        // Cuando estoy escribiendo título de misión y presiono Enter → pasa a descripción
+        mTitle.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                mDesc.focus();
+            }
+        });
+
+        // Cuando estoy en descripción de misión y presiono Enter → añade misión
+        mDesc.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addMissionBtn.click();
+            }
+        });
+
+
         clearBtn.addEventListener('click', () => { mTitle.value = ''; mDesc.value = ''; });
 
         function renderMissionsList() {
@@ -395,6 +428,4 @@
 
     </script>
 </body>
-
-
 </html>
