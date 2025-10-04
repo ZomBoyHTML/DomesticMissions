@@ -42,14 +42,17 @@
         textarea,
         select {
             width: 100%;
+            max-width: 250px;
+            display: block;
+            margin: 6px auto;
             padding: 8px 10px;
-            margin: 6px 0;
             border: 1px solid #00ff00;
             border-radius: 4px;
             background: black;
             color: #00ff00;
             font-family: "Courier New", monospace;
         }
+
 
         button {
             background: black;
@@ -113,11 +116,28 @@
             padding: 10px 0;
             margin-top: 10px;
         }
+
+        #backBtn {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: black;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+
+        #backBtn:hover {
+            background: #003300;
+        }
     </style>
 </head>
 
 <body>
     <div class="app">
+        <button id="backBtn" style="display:none">&lt;&lt;</button>
         <h1>Domestic Missions</h1>
         <div id="authArea">
             <label>Nombre de usuario</label>
@@ -142,7 +162,7 @@
             </div>
         </div>
 
-        <h2 style="margin-top:20px">Misiones guardadas</h2>
+        <h2 style="margin-top:20px">Misiones</h2>
         <div id="missionsList"></div>
 
         <h2>Control de misión</h2>
@@ -244,6 +264,7 @@
         const startBtn = document.getElementById('startBtn');
         const completeBtn = document.getElementById('completeBtn');
         const countdownEl = document.getElementById('countdown');
+        const backBtn = document.getElementById('backBtn');
 
         loginBtn.addEventListener('click', () => {
             const u = (usernameEl.value || '').trim();
@@ -255,6 +276,15 @@
             logoutBtn.style.display = 'inline-block';
             addMissionArea.style.display = 'block';
             renderMissionsList();
+            backBtn.style.display = 'inline-block';
+        });
+
+        backBtn.addEventListener('click', () => {
+            document.getElementById('authArea').style.display = 'block';
+            addMissionArea.style.display = 'none';
+            missionsList.innerHTML = '';
+            missionDetail.style.display = 'none';
+            backBtn.style.display = 'none';
         });
 
         logoutBtn.addEventListener('click', () => { location.reload(); });
