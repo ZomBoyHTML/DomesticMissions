@@ -364,6 +364,13 @@
                         renderMissionsList();
                     }
                 };
+
+                const rem = endOfChileDay() - nowInChile();
+                if (rem <= 0 && m.status === "pending") {
+                    m.status = "failed";
+                    saveMissions(currentUser, currentPin, missions);
+                }
+
                 actions.appendChild(delBtn);
 
                 footer.appendChild(st);
