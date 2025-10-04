@@ -127,58 +127,55 @@
 
     <script>
         function nowInChile() {
-const s = new Date().toLocaleString('en-US', { timeZone: 'America/Santiago' });
-return new Date(s);
-}
-function endOfChileDay() {
-const d = nowInChile();
-const e = new Date(d);
-e.setHours(23, 59, 59, 999);
-return e;
-}
-function msToHMS(ms) {
-if (ms <= 0) return '00:00:00';
-const sec = Math.floor(ms / 1000);
-const h = String(Math.floor(sec / 3600)).padStart(2, '0');
-const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
-const s = String(sec % 60).padStart(2, '0');
-return `${h}:${m}:${s}`;
-}
+            const s = new Date().toLocaleString('en-US', { timeZone: 'America/Santiago' });
+            return new Date(s);
+        }
+        function endOfChileDay() {
+            const d = nowInChile();
+            const e = new Date(d);
+            e.setHours(23, 59, 59, 999);
+            return e;
+        }
+        function msToHMS(ms) {
+            if (ms <= 0) return '00:00:00';
+            const sec = Math.floor(ms / 1000);
+            const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+            const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+            const s = String(sec % 60).padStart(2, '0');
+            return `${h}:${m}:${s}`;
+        }
 
 
-let countdownTimer = null;
+        let countdownTimer = null;
 
 
-function startCountdownFor(mission) {
-stopCountdown();
-function tick() {
-const now = nowInChile();
-const end = endOfChileDay();
-const remaining = end - now;
-const countdownEl = document.getElementById('countdown');
-if(countdownEl) countdownEl.textContent = msToHMS(remaining);
+        function startCountdownFor(mission) {
+            stopCountdown();
+            function tick() {
+            const now = nowInChile();
+            const end = endOfChileDay();
+            const remaining = end - now;
+            const countdownEl = document.getElementById('countdown');
+        if(countdownEl) countdownEl.textContent = msToHMS(remaining);
+            if (remaining <= 0) {
+                mission.status = 'failed';
+                mission.failedAt = Date.now();
+                saveMissions(currentUser, currentPin, missions);
+                stopCountdown();
+                renderMissionsList();
+                selectMission(mission.id);
+            }
+        }
+        tick();
+        countdownTimer = setInterval(tick, 1000);
+        }
 
-
-if (remaining <= 0) {
-mission.status = 'failed';
-mission.failedAt = Date.now();
-saveMissions(currentUser, currentPin, missions);
-stopCountdown();
-renderMissionsList();
-selectMission(mission.id);
-}
-}
-tick();
-countdownTimer = setInterval(tick, 1000);
-}
-
-
-function stopCountdown() {
-if (countdownTimer) {
-clearInterval(countdownTimer);
-countdownTimer = null;
-}
-}
+        function stopCountdown() {
+            if (countdownTimer) {
+            clearInterval(countdownTimer);
+            countdownTimer = null;
+            }
+        }
         
         
         function pinKey(pin) { return String(pin || '').padStart(4, '0').slice(-4); }
@@ -304,5 +301,6 @@ countdownTimer = null;
 
 
 </html>
+
 
 
