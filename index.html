@@ -151,12 +151,13 @@
 
         function startCountdownFor(mission) {
             stopCountdown();
-            function tick() {
+        function tick() {
             const now = nowInChile();
             const end = endOfChileDay();
             const remaining = end - now;
             const countdownEl = document.getElementById('countdown');
-        if(countdownEl) countdownEl.textContent = msToHMS(remaining);
+            if(countdownEl) countdownEl.textContent = msToHMS(remaining);
+            
             if (remaining <= 0) {
                 mission.status = 'failed';
                 mission.failedAt = Date.now();
@@ -301,6 +302,7 @@
 
 
 </html>
+
 
 
 
