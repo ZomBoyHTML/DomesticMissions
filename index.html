@@ -144,7 +144,41 @@
             const s = String(sec % 60).padStart(2, '0');
             return `${h}:${m}:${s}`;
         }
-        
+
+
+        let countdownInterval = null;
+
+
+        function startCountdownFor(mission) {
+            stopCountdown();
+            function tick() {
+                const now = nowInChile();
+                const end = endOfChileDay();
+                const remaining = end - now;
+                const countdownEl = document.getElementById('countdown');
+                if (countdownEl) countdownEl.textContent = msToHMS(remaining);
+
+
+                if (remaining <= 0) {
+                    mission.status = 'failed';
+                    mission.failedAt = Date.now();
+                    saveMissions(currentUser, currentPin, missions);
+                    stopCountdown();
+                    renderMissionsList();
+                    selectMission(mission.id);
+                }
+            }
+            tick();
+            countdownInterval = setInterval(tick, 1000);
+        }
+
+
+        function stopCountdown() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+        }
         
         function pinKey(pin) { return String(pin || '').padStart(4, '0').slice(-4); }
         function storageKeyFor(user, pin) { return `sg_user_${user}___${pinKey(pin)}`; }
@@ -269,6 +303,7 @@
 
 
 </html>
+
 
 
 
