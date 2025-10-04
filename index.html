@@ -5,77 +5,115 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DomesticMissions</title>
-   <style>
-    html, body {
-      margin:0;
-      padding:0;
-      width:100%;
-      height:100%;
-      overflow:hidden;
-    }
-    body{
-      background:#000;
-      color:#00ff00;
-      font-family: "Courier New", monospace;
-      display:flex;
-      flex-direction:column;
-      justify-content:center; 
-      align-items:center;
-    }
-    .app{
-      width:100%;
-      max-width:500px;
-      text-align:center;
-    }
-    h1,h2,label,p{color:#00ff00;}
-    input, textarea, select{
-      width:100%;
-      padding:8px 10px;
-      margin:6px 0;
-      border:1px solid #00ff00;
-      border-radius:4px;
-      background:black;
-      color:#00ff00;
-      font-family:"Courier New", monospace;
-    }
-    button{
-      background:black;
-      color:#00ff00;
-      border:1px solid #00ff00;
-      padding:8px 14px;
-      margin:4px;
-      cursor:pointer;
-      font-family:"Courier New", monospace;
-    }
-    button:hover{
-      background:#003300;
-    }
-    .mission{
-      border:1px solid #00ff00;
-      padding:8px;
-      margin:8px 0;
-      text-align:left;
-    }
-    .status{
-      font-weight:bold;
-      display:inline-block;
-      margin-top:6px;
-    }
-    .status.pending{color:#00ff00;}
-    .status.active{color:#00ffaa;}
-    .status.failed{color:#777;}
-    .status.done{color:#00aaff;}
-    .count{font-size:24px;font-weight:bold;margin:10px 0;}
-    .small{font-size:12px;color:#00ff00;}
-    .footer {
-      width:100%;
-      text-align:center;
-      font-size: 0.8rem;
-      color: gray;
-      padding: 10px 0;
-      margin-top: 10px;
-    }
-  </style>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background: #000;
+            color: #00ff00;
+            font-family: "Courier New", monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h1,
+        h2,
+        label,
+        p {
+            color: #00ff00;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 8px 10px;
+            margin: 6px 0;
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            background: black;
+            color: #00ff00;
+            font-family: "Courier New", monospace;
+        }
+
+        button {
+            background: black;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px 14px;
+            margin: 4px;
+            cursor: pointer;
+            font-family: "Courier New", monospace;
+        }
+
+        button:hover {
+            background: #003300;
+        }
+
+        .mission {
+            border: 1px solid #00ff00;
+            padding: 8px;
+            margin: 8px 0;
+            text-align: left;
+        }
+
+        .status {
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 6px;
+        }
+
+        .status.pending {
+            color: #00ff00;
+        }
+
+        .status.active {
+            color: #00ffaa;
+        }
+
+        .status.failed {
+            color: #777;
+        }
+
+        .status.done {
+            color: #00aaff;
+        }
+
+        .count {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .small {
+            font-size: 12px;
+            color: #00ff00;
+        }
+
+        .footer {
+            width: 100%;
+            text-align: center;
+            font-size: 0.8rem;
+            color: gray;
+            padding: 10px 0;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 
 <body>
@@ -179,7 +217,8 @@
                 countdownInterval = null;
             }
         }
-        
+
+
         function pinKey(pin) { return String(pin || '').padStart(4, '0').slice(-4); }
         function storageKeyFor(user, pin) { return `sg_user_${user}___${pinKey(pin)}`; }
         function loadMissions(u, p) { try { return JSON.parse(localStorage.getItem(storageKeyFor(u, p))) || [] } catch { return [] } }
@@ -303,9 +342,3 @@
 
 
 </html>
-
-
-
-
-
-
